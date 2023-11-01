@@ -1,6 +1,8 @@
 const bluebird = require('bluebird');
 const redis = require('redis');
 const mongoose = require('mongoose');
+const dns = require('dns');
+const URL = require('URL');
 
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
@@ -10,6 +12,13 @@ const debug = {
   redis: require('debug')('crawler:redis'),
   mongo: require('debug')('crawler:mongo'),
 };
+
+const dnsPromises = dns.promises;
+
+async function lookupIP(domain) {
+  const ip = await dnsPromises.lookup(domain);
+  console.log(`domain ${domain} translated to ip: ${ip}`);
+}
 
 module.exports = {
   connect: async () => {
@@ -27,13 +36,20 @@ module.exports = {
   },
   store: async page => {
     debug.db(`Store page ${page.url}`);
-
-    // We don't need to wait for this
-    (async () => {
-      debug.mongo('Add page to mongo');
-      await this.db.collection('pages').insertOne(page);
-      debug.mongo('Mongo save complete');
-    })();
+    const domain = new URL(page.url).domain;
+    const ip = await lookupIP(domain);
+    dnsEntry = {
+      domain: `${domain}`,
+      ip: `${ip}`,
+    }(
+      // We don't need to wait for this
+      async () => {
+        debug.mongo('Add page to mongo');
+        await this.db.collection('pages').insertOne(page);
+        await this.db.collection('dns').insertOne(dnsEntry);
+        debug.mongo('Mongo save complete');
+      }
+    )();
 
     debug.redis('Add scraped urls to redis');
     const multi = this.client.multi();
