@@ -39,6 +39,10 @@ const crawl = async (entry, options = {}) => {
       debug.page(`Crawling: ${target.url}`);
       await page.goto(target.url);
       debug.page(`Page loaded`);
+      await page.screenshot({
+        path: `./assets/${target.rul}/${new Date()}/screenshot.jpg`,
+      });
+      debug.page(`Page screenshot taken`);
       const links = await page.evaluate(() => {
         return Array.from(document.querySelectorAll('a')).map(
           link => link.href
