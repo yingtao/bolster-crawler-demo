@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv').config();
+const axios = require('axios');
 
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
@@ -27,6 +28,13 @@ app.post('/v1/startcrawl', async (req, res) => {
 
 app.get('/', async (req, res) => {
   console.log('It works!');
+});
+
+app.get('/getipinfo/:ip', async (req, res) => {
+  const ipinfouri = `https://ipinfo.io/${req.params.ip}`;
+  const result = await axios.get(ipinfouri);
+  console.log(result);
+  res.status(200).send(result);
 });
 
 app.listen(PORT, () => console.log(`app is running on port: ${PORT}`));
