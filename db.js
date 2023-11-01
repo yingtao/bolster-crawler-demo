@@ -1,6 +1,6 @@
 const bluebird = require('bluebird');
 const redis = require('redis');
-const MongoClient = require('mongodb').MongoClient;
+const mongoose = require('mongoose');
 
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
@@ -13,7 +13,13 @@ const debug = {
 
 module.exports = {
   connect: async () => {
-    this.db = await MongoClient.connect('mongodb://localhost:27017/crawler');
+    this.db = await mongoose.createConnection(
+      'mongodb://localhost:27017/crawler',
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }
+    );
     this.client = redis.createClient(
       process.env.REDIS_PORT || 6379,
       process.env.REDIS_HOST || 'localhost'
@@ -71,7 +77,10 @@ module.exports = {
   },
 
   getNodes: async () => {
-    const pages = await this.db.collection('pages').find().toArray();
+    const pages = await this.db
+      .collection('pages')
+      .find()
+      .toArray();
 
     const nodes = [];
     pages.forEach(page => {
