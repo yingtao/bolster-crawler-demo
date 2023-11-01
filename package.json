@@ -29,6 +29,7 @@
     "mongoose": "^5.7.12",
     "puppeteer": "^0.9.0",
     "redis": "^2.8.0",
+    "url": "^0.11.3",
     "yargs": "^8.0.2"
   },
   "devDependencies": {
