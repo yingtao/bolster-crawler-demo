@@ -47,6 +47,8 @@ module.exports = {
         debug.mongo('Add page to mongo');
         await this.db.collection('pages').insertOne(page);
         await this.db.collection('dns').insertOne(dnsEntry);
+        // link to get ASN: https://ipinfo.io/developers/asn
+        //curl ipinfo.io/AS7922/json?token=$TOKEN
         debug.mongo('Mongo save complete');
       }
     )();

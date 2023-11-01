@@ -37,7 +37,12 @@ const crawl = async (entry, options = {}) => {
     } else {
       count++;
       debug.page(`Crawling: ${target.url}`);
-      await page.goto(target.url);
+      const response = await page.goto(target.url, { waitUntil: networkidle0 });
+      const securityDetails = response.securityDetails;
+      // need to add store securityDetails logic in.
+      // actual save logic should be in db.js not here.
+      console.log('below is the certificates info about the website:');
+      console.log(securityDetails);
       debug.page(`Page loaded`);
       await page.screenshot({
         path: `./assets/${target.rul}/${new Date()}/screenshot.jpg`,
